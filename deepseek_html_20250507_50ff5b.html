@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnapPDF - Convert JPG to PDF</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6C63FF;
+            --secondary: #4D44DB;
+            --accent: #FF6584;
+            --light: #F8F9FA;
+            --dark: #2D3748;
+            --gray: #A0AEC0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .converter-container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            color: var(--primary);
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .tagline {
+            color: var(--dark);
+            opacity: 0.7;
+            font-size: 14px;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--gray);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: rgba(108, 99, 255, 0.05);
+        }
+
+        .upload-area i {
+            font-size: 48px;
+            color: var(--primary);
+            margin-bottom: 15px;
+        }
+
+        .upload-area p {
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .upload-area span {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .preview-item {
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preview-item .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: var(--accent);
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        .settings {
+            background: var(--light);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .settings h3 {
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        .form-group select, .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--gray);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .convert-btn {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .convert-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 99, 255, 0.3);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 12px;
+            color: var(--dark);
+            opacity: 0.6;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+    </style>
+</head>
+<body>
+    <div class="converter-container">
+        <div class="header">
+            <div class="logo">SnapPDF</div>
+            <div class="tagline">Convert images to PDF in seconds</div>
+        </div>
+
+        <div class="upload-area" id="uploadArea">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p>Drag & Drop your JPG files here</p>
+            <span>or click to browse</span>
+            <input type="file" id="fileInput" accept="image/*" multiple style="display: none;">
+        </div>
+
+        <div class="preview-container" id="previewContainer"></div>
+
+        <div class="settings">
+            <h3>PDF Settings</h3>
+            <div class="form-group">
+                <label for="pageSize">Page Size</label>
+                <select id="pageSize">
+                    <option value="A4">A4</option>
+                    <option value="Letter">Letter</option>
+                    <option value="Legal">Legal</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="orientation">Orientation</label>
+                <select id="orientation">
+                    <option value="portrait">Portrait</option>
+                    <option value="landscape">Landscape</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="margin">Margin (mm)</label>
+                <input type="number" id="margin" value="10" min="0">
+            </div>
+        </div>
+
+        <button class="convert-btn" id="convertBtn">
+            <i class="fas fa-file-pdf"></i> Convert to PDF
+        </button>
+
+        <div class="footer">
+            Free to use • No watermarks • Secure processing
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const previewContainer = document.getElementById('previewContainer');
+        const convertBtn = document.getElementById('convertBtn');
+
+        // Handle drag & drop
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--primary)';
+            uploadArea.style.backgroundColor = 'rgba(108, 99, 255, 0.1)';
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = 'var(--gray)';
+            uploadArea.style.backgroundColor = 'transparent';
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--gray)';
+            uploadArea.style.backgroundColor = 'transparent';
+            if (e.dataTransfer.files.length) {
+                handleFiles(e.dataTransfer.files);
+            }
+        });
+
+        // Handle file selection
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length) {
+                handleFiles(fileInput.files);
+            }
+        });
+
+        // Process selected files
+        function handleFiles(files) {
+            previewContainer.innerHTML = '';
+            Array.from(files).forEach(file => {
+                if (!file.type.match('image.*')) return;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'preview-item fade-in';
+                    previewItem.innerHTML = `
+                        <img src="${e.target.result}" alt="${file.name}">
+                        <div class="remove-btn" data-name="${file.name}">×</div>
+                    `;
+                    previewContainer.appendChild(previewItem);
+
+                    // Add remove button functionality
+                    previewItem.querySelector('.remove-btn').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        previewItem.remove();
+                    });
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Convert to PDF (simulated - in a real app, use a backend/API)
+        convertBtn.addEventListener('click', () => {
+            if (previewContainer.children.length === 0) {
+                alert('Please upload at least one image!');
+                return;
+            }
+            
+            // Simulate conversion
+            convertBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            setTimeout(() => {
+                convertBtn.innerHTML = '<i class="fas fa-check"></i> PDF Ready!';
+                alert('PDF generated successfully! (This is a demo. In a real app, it would download the PDF.)');
+                setTimeout(() => {
+                    convertBtn.innerHTML = '<i class="fas fa-file-pdf"></i> Convert to PDF';
+                }, 2000);
+            }, 1500);
+        });
+    </script>
+</body>
+</html>
